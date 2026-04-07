@@ -1,4 +1,4 @@
-import 'package:expenseflow/home_screen.dart';
+import 'package:expenseflow/bottom_navigation.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -40,7 +40,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const BottomNavigation()),
       );
     }
   }
@@ -48,7 +48,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void skip() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
+      MaterialPageRoute(builder: (_) => const BottomNavigation()),
     );
   }
 
