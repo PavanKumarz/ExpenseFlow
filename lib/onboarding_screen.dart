@@ -61,7 +61,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              // Skip button
               Align(
                 alignment: Alignment.topRight,
                 child: TextButton(
@@ -86,7 +85,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Icon box
                         Container(
                           height: 100,
                           width: 100,
@@ -110,7 +108,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
                         const SizedBox(height: 30),
 
-                        // Title
                         Text(
                           page["title"],
                           textAlign: TextAlign.center,
@@ -123,7 +120,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
                         const SizedBox(height: 10),
 
-                        // Subtitle
                         Text(
                           page["subtitle"],
                           textAlign: TextAlign.center,
@@ -138,7 +134,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
 
-              // Dots indicator
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(
