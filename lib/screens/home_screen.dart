@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:expenseflow/add_transaction.dart';
+import 'package:expenseflow/screens/add_transaction_screen.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,17 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Column(
                 children: [
                   Text(
-                    "Good Morning",
-                    style: GoogleFonts.inter(
-                      letterSpacing: 1,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    "Qwerty",
+                    "ExpenseFlow",
                     style: GoogleFonts.inter(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
@@ -65,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => AddTransaction()),
+            MaterialPageRoute(builder: (_) => AddTransactionScreen()),
           );
         },
         backgroundColor: Color(0xFF0F9D6E),

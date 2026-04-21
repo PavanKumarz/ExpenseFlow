@@ -1,5 +1,5 @@
 import 'package:expenseflow/bottom_navigation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide BottomNavigationBar;
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});

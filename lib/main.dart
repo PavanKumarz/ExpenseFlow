@@ -1,4 +1,4 @@
-import 'package:expenseflow/splash_screen.dart';
+import 'package:expenseflow/screens/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'ExpenseFlow',
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: OnboardingScreen(),
     );
   }
 }

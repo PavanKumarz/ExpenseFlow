@@ -3,14 +3,14 @@ import 'package:expenseflow/widgets/date_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class AddTransaction extends StatefulWidget {
-  const AddTransaction({super.key});
+class AddTransactionScreen extends StatefulWidget {
+  const AddTransactionScreen({super.key});
 
   @override
-  State<AddTransaction> createState() => _AddTransactionState();
+  State<AddTransactionScreen> createState() => _AddTransactionScreenState();
 }
 
-class _AddTransactionState extends State<AddTransaction> {
+class _AddTransactionScreenState extends State<AddTransactionScreen> {
   String selectedType = 'expense';
   String? categoryselected;
   double amount = 0;
