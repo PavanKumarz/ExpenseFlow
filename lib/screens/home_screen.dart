@@ -1,6 +1,10 @@
 import 'dart:ui';
 
+import 'package:expenseflow/db/database_helper.dart';
+import 'package:expenseflow/models/transaction_model.dart';
 import 'package:expenseflow/screens/add_transaction_screen.dart';
+import 'package:expenseflow/screens/transaction_screen.dart';
+import 'package:expenseflow/widgets/home_screen_chart.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,6 +17,40 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  double totalBalance = 0;
+  double totalIncome = 0;
+  double totalExpense = 0;
+  List<TransactionModel> recentTransactions = [];
+  List<Map<String, dynamic>> dailySummary = [];
+  double maxGraphY = 100;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final summary = await DatabaseHelper().getSummary();
+    final transactions = await DatabaseHelper().getRecentTransactions();
+    final summaryDaily = await DatabaseHelper().getDailySummary(7);
+
+    double maxVal = 100;
+    for (var item in summaryDaily) {
+      double total = (item['income'] as double) + (item['expense'] as double);
+      if (total > maxVal) maxVal = total;
+    }
+
+    setState(() {
+      totalBalance = summary['balance'] ?? 0;
+      totalIncome = summary['income'] ?? 0;
+      totalExpense = summary['expense'] ?? 0;
+      recentTransactions = transactions;
+      dailySummary = summaryDaily;
+      maxGraphY = maxVal * 1.2;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,11 +90,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => AddTransactionScreen()),
+            MaterialPageRoute(builder: (_) => const AddTransactionScreen()),
           );
+          if (result == true) {
+            _loadData();
+          }
         },
         backgroundColor: Color(0xFF0F9D6E),
         child: Icon(Icons.add, color: Colors.white, size: 30),
@@ -82,16 +123,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
 
-                  /* 
-                  LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFF0E8F63),
-                  Color(0xFF14B37D),
-                ],
-              )
-                  */
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Padding(
@@ -105,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(color: Colors.white, fontSize: 20),
                       ),
                       Text(
-                        "\$0.00",
+                        "\$${totalBalance.toStringAsFixed(2)}",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 32,
@@ -163,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       const SizedBox(height: 5),
                                       Text(
-                                        '\$0',
+                                        '\$${totalIncome.toStringAsFixed(0)}',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 20,
@@ -213,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            'Expe nse',
+                                            'Expense',
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 17,
@@ -223,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       const SizedBox(height: 5),
                                       Text(
-                                        '\$0',
+                                        '\$${totalExpense.toStringAsFixed(0)}',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 20,
@@ -243,101 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Material(
-                elevation: 1,
-                borderRadius: BorderRadius.circular(15),
-                child: Container(
-                  height: 250,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 10,
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              'Spending Overview',
-                              style: TextStyle(fontSize: 22),
-                            ),
-                            Spacer(),
-                            Icon(
-                              Icons.trending_up_rounded,
-                              color: Colors.green,
-                              size: 25,
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 200,
-                          child: BarChart(
-                            BarChartData(
-                              alignment: BarChartAlignment.spaceAround,
-                              maxY: 250,
-                              barTouchData: BarTouchData(enabled: false),
-                              titlesData: FlTitlesData(
-                                leftTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                                rightTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                                topTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                                bottomTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    getTitlesWidget: (value, meta) {
-                                      const days = [
-                                        "Wed",
-                                        "Thu",
-                                        "Fri",
-                                        "Sat",
-                                        "Sun",
-                                        "Mon",
-                                        "Tue",
-                                      ];
-                                      return Text(
-                                        days[value.toInt()],
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                              borderData: FlBorderData(show: false),
-                              gridData: FlGridData(show: false),
-                              barGroups: [
-                                makeBar(0, 100, 100),
-                                makeBar(1, 50, 100),
-                                makeBar(2, 80, 100),
-                                makeBar(3, 120, 100),
-                                makeBar(4, 60, 100),
-                                makeBar(5, 30, 100),
-                                makeBar(6, 90, 100),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            HomeScreenChart(dailySummary: dailySummary, maxGraphY: maxGraphY),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
@@ -345,7 +282,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text('Recent Transactions', style: TextStyle(fontSize: 20)),
                   Spacer(),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => TransactionScreen()),
+                      );
+                    },
                     child: Text(
                       'See All',
                       style: TextStyle(color: Color(0xFF0F9D6E)),
@@ -355,26 +297,81 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             ListView.builder(
-              itemCount: 5,
+              itemCount: recentTransactions.length,
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-
+              physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
+                final tx = recentTransactions[index];
                 return Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
                     vertical: 5,
                   ),
                   child: Material(
-                    borderRadius: BorderRadius.circular(5),
-
+                    borderRadius: BorderRadius.circular(15),
                     elevation: 1,
                     child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
                       height: 70,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(5),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 45,
+                            width: 45,
+                            decoration: BoxDecoration(
+                              color: tx.type == 'income'
+                                  ? Colors.green.withOpacity(0.1)
+                                  : Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              tx.type == 'income'
+                                  ? Icons.south_east
+                                  : Icons.north_east,
+                              color: tx.type == 'income'
+                                  ? Colors.green
+                                  : Colors.red,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                tx.category,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                tx.date,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Text(
+                            "${tx.type == 'income' ? '+' : '-'}\$${tx.amount.toStringAsFixed(2)}",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: tx.type == 'income'
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -394,12 +391,20 @@ BarChartGroupData makeBar(int x, double income, double expense) {
     barRods: [
       BarChartRodData(
         toY: income + expense,
-        width: 16,
-        borderRadius: BorderRadius.zero,
+        width: 18,
+        borderRadius: BorderRadius.circular(4),
+        backDrawRodData: BackgroundBarChartRodData(
+          show: true,
+          toY: 0,
+          color: Colors.grey.withOpacity(0.1),
+        ),
         rodStackItems: [
-          BarChartRodStackItem(0, expense, Colors.red),
-
-          BarChartRodStackItem(expense, expense + income, Color(0xFF0F9D6E)),
+          BarChartRodStackItem(0, expense, Colors.redAccent.withOpacity(0.8)),
+          BarChartRodStackItem(
+            expense,
+            expense + income,
+            const Color(0xFF0F9D6E).withOpacity(0.9),
+          ),
         ],
       ),
     ],

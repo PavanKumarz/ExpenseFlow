@@ -1,3 +1,5 @@
+import 'package:expenseflow/db/database_helper.dart';
+import 'package:expenseflow/models/transaction_model.dart';
 import 'package:expenseflow/widgets/category_card.dart';
 import 'package:expenseflow/widgets/date_input_formatter.dart';
 import 'package:flutter/material.dart';
@@ -19,13 +21,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   FocusNode amountFocusNode = FocusNode();
   TextEditingController amountController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
+  final TextEditingController notesController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
-    amountController.text = '0.00';
-
+    amountController.text = '0';
     amountFocusNode.addListener(() {
       setState(() {
         isFocused = amountFocusNode.hasFocus;
@@ -43,6 +44,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   void dispose() {
     amountFocusNode.dispose();
     amountController.dispose();
+    dateController.dispose();
+    notesController.dispose();
     super.dispose();
   }
 
@@ -82,6 +85,36 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         TextPosition(offset: amountController.text.length),
       );
     });
+  }
+
+  Future<void> _saveTransaction() async {
+    if (amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid amount')),
+      );
+      return;
+    }
+
+    if (categoryselected == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a category')));
+      return;
+    }
+
+    final transaction = TransactionModel(
+      amount: amount,
+      type: selectedType,
+      category: categoryselected!,
+      date: dateController.text,
+      notes: notesController.text,
+    );
+
+    await DatabaseHelper().insertTransaction(transaction);
+
+    if (mounted) {
+      Navigator.pop(context, true);
+    }
   }
 
   @override
@@ -238,6 +271,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               Text('Notes (optional)', style: TextStyle(fontSize: 18)),
               const SizedBox(height: 5),
               TextField(
+                controller: notesController,
                 maxLines: 4,
                 decoration: InputDecoration(
                   hintText: "Add notes...",
@@ -266,7 +300,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _saveTransaction,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF0E8F63),
                     shape: RoundedRectangleBorder(

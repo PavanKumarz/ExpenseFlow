@@ -25,7 +25,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[currentpage],
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentpage,
         onTap: (index) {
@@ -33,7 +32,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
             currentpage = index;
           });
         },
-
         type: BottomNavigationBarType.fixed,
         elevation: 8,
         backgroundColor: Colors.white,
